@@ -57,3 +57,22 @@ SELECT
         ELSE payment_method
     END AS cleaned_payment_method
 FROM subscriptions;
+
+
+-- ********************** Consistency ************************
+-- ****** Is the same info always written the same way? ******
+
+SELECT
+    plan,
+    COUNT(*) AS qty_rows
+FROM subscriptions
+GROUP BY plan
+ORDER BY 2 DESC;
+
+SELECT
+    DISTINCT(plan_cleaned)
+FROM (
+    SELECT
+        UPPER(SUBSTR(TRIM(plan), 1, 1)) || LOWER(SUBSTR(TRIM(plan), 2)) AS plan_cleaned
+    FROM subscriptions);
+
