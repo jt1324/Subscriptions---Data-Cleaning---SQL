@@ -100,3 +100,24 @@ FROM (
         END AS country_cleaned
     FROM subscriptions)
 GROUP BY country_cleaned;
+
+
+SELECT
+    start_date,
+    COUNT(*) AS qty_rows
+FROM subscriptions
+GROUP BY start_date
+ORDER BY 2 DESC;
+
+
+SELECT
+    start_date,
+    CASE
+        WHEN start_date LIKE '____-__-__' THEN date(start_date)
+        WHEN start_date LIKE '__/__/____' THEN date(
+            substr(start_date, 7, 4) || '-' ||
+            substr(start_date, 4, 2) || '-' ||
+            substr(start_date, 1, 2)
+        )
+    END AS start_date_cleaned
+FROM subscriptions;
