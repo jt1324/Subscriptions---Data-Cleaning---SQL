@@ -24,6 +24,21 @@ WITH status_ok AS (
     FROM subscriptions)
 SELECT
     cleaned_status,
-    COUNT(DISTINCT subscription_id) AS Qty
+    COUNT(DISTINCT subscription_id) AS total_subscriptions,
+    SUM(monthly_price) AS mrr                                      -- This information is not correct as data still needs to be clenaed
 FROM status_ok
 GROUP BY 1;
+
+
+-- ********************** 6C Framework ************************
+
+-- ********************** Completeness ************************
+-- ************ Are all the necessary values there? ***********
+
+SELECT
+    COUNT(*) AS total_rows,
+    COUNT(CASE WHEN TRIM(customer_email) = '' THEN 1 END) AS missing_emails,
+    COUNT(CASE WHEN TRIM(start_date) = '' THEN 1 END) AS missing_start_date,
+    COUNT(CASE WHEN TRIM(end_date) = '' THEN 1 END) AS missing_end_date,
+    COUNT(CASE WHEN TRIM(payment_method) = '' THEN 1 END) AS missing_payment_method
+FROM subscriptions;
