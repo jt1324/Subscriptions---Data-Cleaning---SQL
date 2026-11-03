@@ -76,3 +76,27 @@ FROM (
         UPPER(SUBSTR(TRIM(plan), 1, 1)) || LOWER(SUBSTR(TRIM(plan), 2)) AS plan_cleaned
     FROM subscriptions);
 
+
+SELECT
+    country,
+    COUNT(*) AS qty_rows
+FROM subscriptions
+GROUP BY country
+ORDER BY 2 DESC;
+
+
+SELECT 
+    country_cleaned,
+    COUNT(*) AS qty_rowls
+FROM (
+    SELECT
+        country,
+        CASE
+            WHEN LOWER(country) LIKE '%italy%' OR LOWER(country) LIKE '%it%' THEN 'Italy'
+            WHEN LOWER(country) LIKE '%u%' THEN 'United Kingdom'
+            WHEN LOWER(country) LIKE '%germany%' OR LOWER(country) LIKE '%de%' THEN 'Germany'
+            WHEN LOWER(country) LIKE '%ireland%' or LOWER(country) LIKE '%ie%' THEN 'Ireland'
+            ELSE 'Unknown'
+        END AS country_cleaned
+    FROM subscriptions)
+GROUP BY country_cleaned;
