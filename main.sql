@@ -42,3 +42,10 @@ SELECT
     COUNT(CASE WHEN TRIM(end_date) = '' THEN 1 END) AS missing_end_date,
     COUNT(CASE WHEN TRIM(payment_method) = '' THEN 1 END) AS missing_payment_method
 FROM subscriptions;
+
+SELECT
+    payment_method,
+    COUNT(*) AS total_rows
+FROM subscriptions
+GROUP BY payment_method
+ORDER BY 2 DESC;
