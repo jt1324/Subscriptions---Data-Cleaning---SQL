@@ -49,3 +49,11 @@ SELECT
 FROM subscriptions
 GROUP BY payment_method
 ORDER BY 2 DESC;
+
+SELECT
+    payment_method,
+    CASE
+        WHEN payment_method = 'NULL' OR payment_method = 'N/A' OR payment_method = '' THEN 'Unknown'
+        ELSE payment_method
+    END AS cleaned_payment_method
+FROM subscriptions;
