@@ -167,3 +167,12 @@ ORDER BY 2 DESC;
 -- ******************************************** Conformity **********************************************
 -- *************** Does the data follow the businnes rules? - One row per subscription ******************
 
+-- Identifying duplications
+SELECT
+    subscription_id,
+    COUNT(*) AS qty
+FROM subscriptions
+GROUP BY 1
+HAVING COUNT(*) > 1
+ORDER BY 2 DESC;
+
