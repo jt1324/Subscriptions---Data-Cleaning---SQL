@@ -142,18 +142,25 @@ FROM subscriptions
 GROUP BY 1
 ORDER BY 2 DESC;
 
-
-WITH integ AS (
+WITH done AS (
+    WITH integ AS (
+        SELECT
+            CAST(monthly_price AS REAL) AS monthly_price
+        FROM subscriptions)
     SELECT
-        CAST(monthly_price AS REAL) AS monthly_price
-    FROM subscriptions)
+        monthly_price,
+        CASE
+            WHEN monthly_price < 0 THEN monthly_price * -1
+            WHEN monthly_price > 100 then monthly_price / 100
+            ELSE monthly_price
+        END AS monthly_price_cleaned
+    FROM integ
+)
 SELECT
-    monthly_price,
-    CASE
-        WHEN monthly_price < 0 THEN monthly_price * -1
-        WHEN monthly_price > 100 then monthly_price / 100
-        ELSE monthly_price
-    END AS monthly_price_cleaned
-FROM integ;
+    monthly_price_cleaned,
+    COUNT(*)
+FROM done
+GROUP BY 1
+ORDER BY 2 DESC;
 
 
