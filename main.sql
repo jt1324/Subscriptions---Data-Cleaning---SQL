@@ -164,3 +164,6 @@ GROUP BY 1
 ORDER BY 2 DESC;
 
 
+-- ******************************************** Conformity **********************************************
+-- *************** Does the data follow the businnes rules? - One row per subscription ******************
+
