@@ -62,6 +62,7 @@ FROM subscriptions;
 -- ********************** Consistency ************************
 -- ****** Is the same info always written the same way? ******
 
+-- plan
 SELECT
     plan,
     COUNT(*) AS qty_rows
@@ -77,6 +78,7 @@ FROM (
     FROM subscriptions);
 
 
+-- country
 SELECT
     country,
     COUNT(*) AS qty_rows
@@ -102,6 +104,7 @@ FROM (
 GROUP BY country_cleaned;
 
 
+-- start_date
 SELECT
     start_date,
     COUNT(*) AS qty_rows
@@ -121,3 +124,36 @@ SELECT
         )
     END AS start_date_cleaned
 FROM subscriptions;
+
+
+-- ********************** Correctness ************************
+-- *************** Are the values possible? ******************
+
+-- Checking columns data type
+SELECT monthly_price, typeof(monthly_price), start_date, typeof(start_date)
+FROM subscriptions
+LIMIT 10;
+
+-- monthly_price
+SELECT
+    monthly_price,
+    COUNT(*) AS qty
+FROM subscriptions
+GROUP BY 1
+ORDER BY 2 DESC;
+
+
+WITH integ AS (
+    SELECT
+        CAST(monthly_price AS REAL) AS monthly_price
+    FROM subscriptions)
+SELECT
+    monthly_price,
+    CASE
+        WHEN monthly_price < 0 THEN monthly_price * -1
+        WHEN monthly_price > 100 then monthly_price / 100
+        ELSE monthly_price
+    END AS monthly_price_cleaned
+FROM integ;
+
+
