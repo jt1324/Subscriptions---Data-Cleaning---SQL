@@ -176,3 +176,23 @@ GROUP BY 1
 HAVING COUNT(*) > 1
 ORDER BY 2 DESC;
 
+SELECT
+    *
+FROM subscriptions
+WHERE subscription_id = 'SUB-1132';
+
+
+WITH row_n AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER(
+            PARTITION BY subscription_id
+                ORDER BY updated_at DESC
+        ) AS rn
+    FROM subscriptions
+)
+SELECT
+    *
+FROM row_n
+WHERE rn = 1; 
+
