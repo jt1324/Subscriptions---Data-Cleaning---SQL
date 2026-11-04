@@ -196,3 +196,9 @@ SELECT
 FROM row_n
 WHERE rn = 1; 
 
+
+-- ******************************************** Coherence **********************************************
+-- **** Do related columns make sense together? - Columns can look ok but contradict its neighbour *****
+
+
+
