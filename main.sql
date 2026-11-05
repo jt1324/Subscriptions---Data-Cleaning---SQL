@@ -271,7 +271,7 @@ consistency AS (
             ELSE 'Unknown'
         END AS country,
         UPPER(SUBSTR(TRIM(plan), 1, 1)) || LOWER(SUBSTR(TRIM(plan), 2)) AS plan,
-        monthly_price,
+        CAST(monthly_price AS REAL) AS monthly_price,
         CASE
             WHEN LOWER(status) LIKE '%active%' THEN 'Active'
             WHEN LOWER(status) LIKE '%cancel%' THEN 'Cancelled'
@@ -369,7 +369,15 @@ SELECT
         start_date,
         end_date,
         payment_method,
-        updated_at
-        internal_notes
+        updated_at,
+        internal_notes,
+        quality_flag
 FROM conherence
 WHERE COALESCE(customer_email, '') NOT LIKE 'test%';
+
+
+-- Testing new table
+
+SELECT
+    *
+FROM subscriptions_clean;
