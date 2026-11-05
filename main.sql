@@ -229,3 +229,58 @@ SELECT
 FROM subscriptions
 WHERE COALESCE(customer_email, '') NOT LIKE 'test%';
 
+
+
+-- ************************************** Final Cleaning Pipeline ****************************************
+
+CREATE OR REPLACE TABLE subscriptions_clean AS
+
+WITH completeness AS (
+    SELECT
+        subscription_id,
+        customer_id,
+        customer_email,
+        country	plan,
+        monthly_price,
+        status,
+        start_date,
+        end_date,
+        -- payment_method,
+        updated_at,
+        internal_notes,
+        CASE
+            WHEN payment_method = 'NULL' OR payment_method = 'N/A' OR payment_method = '' THEN 'Unknown'
+            ELSE payment_method
+        END AS payment_method
+    FROM subscriptions
+),
+
+consistency AS (
+    SELECT
+        subscription_id,
+        customer_id,
+        LOWER(TRIM(customer_email)) AS customer_email,
+        CASE
+            WHEN LOWER(country) LIKE '%italy%' OR LOWER(country) LIKE '%it%' THEN 'Italy'
+            WHEN LOWER(country) LIKE '%u%' THEN 'United Kingdom'
+            WHEN LOWER(country) LIKE '%germany%' OR LOWER(country) LIKE '%de%' THEN 'Germany'
+            WHEN LOWER(country) LIKE '%ireland%' or LOWER(country) LIKE '%ie%' THEN 'Ireland'
+            ELSE 'Unknown'
+        END AS country,
+        UPPER(SUBSTR(TRIM(plan), 1, 1)) || LOWER(SUBSTR(TRIM(plan), 2)) AS plan,
+        monthly_price,
+        CASE
+            WHEN LOWER(status) LIKE '%active%' THEN 'Active'
+            WHEN LOWER(status) LIKE '%cancel%' THEN 'Cancelled'
+            WHEN LOWER(status) LIKE '%pause%' THEN 'Paused'
+        END AS status,
+        CASE
+            WHEN start_date LIKE '____-__-__' THEN date(start_date)
+            WHEN start_date LIKE '__/__/____' THEN date(
+                substr(start_date, 7, 4) || '-' ||
+                substr(start_date, 4, 2) || '-' ||
+                substr(start_date, 1, 2)
+            )
+        END AS start_date,
+        
+)
