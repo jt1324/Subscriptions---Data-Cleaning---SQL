@@ -233,14 +233,17 @@ WHERE COALESCE(customer_email, '') NOT LIKE 'test%';
 
 -- ************************************** Final Cleaning Pipeline ****************************************
 
-CREATE OR REPLACE TABLE subscriptions_clean AS
+DROP TABLE IF EXISTS subscriptions_clean;
+
+CREATE TABLE subscriptions_clean AS
 
 WITH completeness AS (
     SELECT
         subscription_id,
         customer_id,
         customer_email,
-        country	plan,
+        country,
+        plan,
         monthly_price,
         status,
         start_date,
@@ -282,5 +285,91 @@ consistency AS (
                 substr(start_date, 1, 2)
             )
         END AS start_date,
-        
+        end_date,
+        payment_method,
+        updated_at,
+        internal_notes
+    FROM completeness
+),
+
+correctness AS (
+    SELECT
+        subscription_id,
+        customer_id,
+        customer_email,
+        country,
+        plan,
+        -- monthly_price,
+        status,
+        start_date,
+        end_date,
+        payment_method,
+        updated_at,
+        internal_notes,
+        CASE
+            WHEN monthly_price < 0 THEN monthly_price * -1
+            WHEN monthly_price > 100 then monthly_price / 100
+            ELSE monthly_price
+        END AS monthly_price
+    FROM consistency
+),
+
+ranked AS (
+    SELECT
+        *,
+        ROW_NUMBER() OVER(
+            PARTITION BY subscription_id
+            ORDER BY updated_at DESC
+        ) AS row_num
+    FROM correctness
+),
+
+conformity AS (
+    SELECT
+        subscription_id,
+        customer_id,
+        customer_email,
+        country,
+        plan,
+        monthly_price,
+        status,
+        start_date,
+        end_date,
+        payment_method,
+        updated_at,
+        internal_notes
+    FROM ranked
+    WHERE row_num = 1
+),
+
+conherence AS (
+    SELECT
+        *,
+        CASE
+            WHEN LOWER(TRIM(status)) LIKE '%active%' AND TRIM(end_date) <> '' THEN 'active with end date'
+            WHEN LOWER(TRIM(status)) LIKE '%cancel%' AND TRIM(end_date) = '' THEN 'cancelled with no end date'
+            WHEN LOWER(TRIM(plan)) NOT LIKE '%free%' AND monthly_price = '0.00' THEN 'paid plan without charges'
+            WHEN LOWER(TRIM(plan)) LIKE '%free%' AND monthly_price > '0.00' THEN 'free plan with charges'
+            WHEN LOWER(TRIM(plan)) LIKE '%basic%' AND monthly_price != '9.99' THEN 'basic plan with wrong amount'
+            WHEN LOWER(TRIM(plan)) LIKE '%premium%' AND monthly_price != '19.99' THEN 'premium plan with wrong amount'
+            ELSE 'ok'
+        END AS quality_flag
+    FROM conformity
 )
+
+-- Contextual relevance
+SELECT 
+    subscription_id,
+        customer_id,
+        customer_email,
+        country,
+        plan,
+        monthly_price,
+        status,
+        start_date,
+        end_date,
+        payment_method,
+        updated_at
+        internal_notes
+FROM conherence
+WHERE COALESCE(customer_email, '') NOT LIKE 'test%';
