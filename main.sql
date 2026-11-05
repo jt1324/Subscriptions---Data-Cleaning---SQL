@@ -219,3 +219,8 @@ FROM subscriptions
 WHERE quality_flag != 'ok';
 
 
+-- ******************************************** Contextual relevance **********************************************
+-- ******** Does this row belong in my analysis? - Clean data can still be the wrong data for the question ********
+
+-- Revenue form real customers
+
