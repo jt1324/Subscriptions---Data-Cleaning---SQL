@@ -348,10 +348,10 @@ conherence AS (
         CASE
             WHEN LOWER(TRIM(status)) LIKE '%active%' AND TRIM(end_date) <> '' THEN 'active with end date'
             WHEN LOWER(TRIM(status)) LIKE '%cancel%' AND TRIM(end_date) = '' THEN 'cancelled with no end date'
-            WHEN LOWER(TRIM(plan)) NOT LIKE '%free%' AND monthly_price = '0.00' THEN 'paid plan without charges'
-            WHEN LOWER(TRIM(plan)) LIKE '%free%' AND monthly_price > '0.00' THEN 'free plan with charges'
-            WHEN LOWER(TRIM(plan)) LIKE '%basic%' AND monthly_price != '9.99' THEN 'basic plan with wrong amount'
-            WHEN LOWER(TRIM(plan)) LIKE '%premium%' AND monthly_price != '19.99' THEN 'premium plan with wrong amount'
+            WHEN LOWER(TRIM(plan)) NOT LIKE '%free%' AND monthly_price = 0.00 THEN 'paid plan without charges'
+            WHEN LOWER(TRIM(plan)) LIKE '%free%' AND monthly_price > 0.00 THEN 'free plan with charges'
+            WHEN LOWER(TRIM(plan)) LIKE '%basic%' AND monthly_price != 9.99 THEN 'basic plan with wrong amount'
+            WHEN LOWER(TRIM(plan)) LIKE '%premium%' AND monthly_price != 19.99 THEN 'premium plan with wrong amount'
             ELSE 'ok'
         END AS quality_flag
     FROM conformity
